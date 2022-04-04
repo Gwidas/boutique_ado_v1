@@ -7,11 +7,10 @@ from .models import Order, OrderLineItem
 from products.models import Product
 from bag.contexts import bag_contents
 
-import stripe
+import stripe  
 
 
 def checkout(request):
-
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
     stripe_secret_key = settings.STRIPE_SECRET_KEY
 
@@ -79,12 +78,17 @@ def checkout(request):
             currency=settings.STRIPE_CURRENCY,
         )
 
-    order_form = OrderForm()
+        order_form = OrderForm()
+
+    if not stripe_public_key:
+        messages.warning(request, 'Stripe public key is missing. \
+            Did you forget to set it in your environment?')
+
     template = 'checkout/checkout.html'
     context = {
         'order_form': order_form,
-        'stripe_public_key': 'pk_test_51KjeLuDYsM1IjQsVrxsSXoej9vPOPRoBfoAhWCbv1gG5LHliSN3RVr1RivlnjSZLze2emDQphoswAwP4yD5OBzjJ002XDk2TZ4',
-        'client_secret': 'test client secret',
+        'stripe_public_key': stripe_public_key,
+        'client_secret': intent.client_secret,
     }
 
     return render(request, template, context)
